@@ -67,7 +67,7 @@ function WordFlashPlayer({ question }: PlayerRenderProps) {
 // ---- Multiple Choice --------------------------------------------------------
 const CHOICE_COLORS = ["var(--ing-orange)", "var(--blue)", "var(--violet)", "#2e9e5b"];
 
-function MultipleChoiceHost({ question, control }: HostRenderProps) {
+function MultipleChoiceHost({ question }: HostRenderProps) {
   if (question.type !== "multiplechoice") return null;
   return (
     <div className="mc-host">
@@ -92,16 +92,11 @@ function MultipleChoiceHost({ question, control }: HostRenderProps) {
         })}
       </div>
       <div className="row" style={{ justifyContent: "center", marginTop: 20 }}>
-        {!question.revealed ? (
-          <button
-            className="btn btn-secondary btn-lg"
-            onClick={() => control("reveal")}
-          >
-            Reveal answer
-          </button>
-        ) : (
-          <span className="muted">Answer revealed</span>
-        )}
+        <span className="muted">
+          {question.revealed
+            ? "Answer revealed — press Next ▶ for the leaderboard"
+            : "Press Next ▶ to reveal the answer"}
+        </span>
       </div>
     </div>
   );

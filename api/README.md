@@ -13,14 +13,15 @@ to the session group — never a per-connection loop.
 | POST | `/api/join` | Validate code → create/reuse player, return group-scoped WPS URL + state |
 | GET  | `/api/negotiate?code=XXXX` | Group-scoped WPS URL for host/projector/reconnect |
 | POST | `/api/answer` | Submit answer; **server-stamped** timestamp, rank, speed score; broadcast |
-| POST | `/api/control` | Host actions: start, next/prevQuestion, nextWord/prevWord, reveal, showLeaderboard, showFinal, end |
+| POST | `/api/control` | Host actions: start, **advance** (stepped Next), next/prevQuestion, nextWord/prevWord, reveal, showLeaderboard, showFinal, end |
 | GET  | `/api/session/{code}/state` | Rehydrate canonical state (reconnect) |
 | GET  | `/api/session/{code}/leaderboard` | Authoritative leaderboard aggregation |
 | GET  | `/api/session/{code}/questions` | **Host authoring** view of the full deck (incl. correctAnswer) |
 | PUT  | `/api/session/{code}/questions` | **Host** replace the deck — **lobby only** (pre-start editor) |
 | DELETE | `/api/session/{code}` | **Host** end + **purge** the session (broadcasts `ended`, deletes all data) |
 
-> `reveal` on a **scored** question now auto-switches the room to the leaderboard.
+> `advance` walks each scored question through **reveal → leaderboard → next**
+> with one button; unscored (Word Flash) questions advance straight to the next.
 
 ## Question-type extensibility
 

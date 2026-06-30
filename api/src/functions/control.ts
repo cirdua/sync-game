@@ -23,7 +23,11 @@ import { publishToSession } from "../shared/webpubsub";
 // Body: { code, action, ... }
 // Host-only state machine. Actions:
 //   "start"           -> move from lobby to first question
-//   "nextQuestion"    -> advance to next question (or "final" at the end)
+//   "advance"         -> single "Next ▶" that walks the per-question sequence:
+//                        SCORED question:  question -> reveal -> leaderboard -> next question
+//                        UNSCORED (flash): question -> next question
+//                        (at the end -> final ranking)
+//   "nextQuestion"    -> jump straight to the next question (skip reveal/leaderboard)
 //   "prevQuestion"    -> go back a question
 //   "showLeaderboard" -> switch the room to the leaderboard screen
 //   "showFinal"       -> final ranking screen
@@ -40,12 +44,26 @@ import { publishToSession } from "../shared/webpubsub";
 
 const CORE_ACTIONS = new Set([
   "start",
+  "advance",
   "nextQuestion",
   "prevQuestion",
   "showLeaderboard",
   "showFinal",
   "end",
 ]);
+
+// Advance to the next question, or to the final screen if past the last one.
+function goToNextQuestionOrFinal(
+  session: SessionDoc,
+  questions: QuestionDoc[],
+): Promise<void> | void {
+  const next = session.currentIndex + 1;
+  if (next >= questions.length) {
+    session.screen = "final";
+    return;
+  }
+  return activateQuestion(session, next, questions);
+}
 
 async function activateQuestion(
   session: SessionDoc,
@@ -84,15 +102,37 @@ export async function control(
           await activateQuestion(session, 0, questions);
           break;
 
-        case "nextQuestion": {
-          const next = session.currentIndex + 1;
-          if (next >= questions.length) {
-            session.screen = "final";
+        case "advance": {
+          // Single "Next ▶" that walks the per-question sequence. Behaviour
+          // depends on the current question type + screen, NOT a literal type
+          // name, so the core loop stays extensible.
+          const current = await getCurrentQuestion(session);
+          const scored = current ? getHandler(current.type).scored : false;
+
+          if (session.screen === "leaderboard") {
+            // After the leaderboard step -> go to the next question.
+            await goToNextQuestionOrFinal(session, questions);
+          } else if (
+            session.screen === "question" &&
+            scored &&
+            !session.questionState.revealed
+          ) {
+            // First Next on a scored question -> reveal the answer (stay put).
+            session.questionState = { ...session.questionState, revealed: true };
+          } else if (session.screen === "question" && scored) {
+            // Answer already revealed -> show the leaderboard.
+            session.screen = "leaderboard";
           } else {
-            await activateQuestion(session, next, questions);
+            // Unscored (Word Flash) or anything else -> straight to next question.
+            await goToNextQuestionOrFinal(session, questions);
           }
           break;
         }
+
+        case "nextQuestion":
+          // Jump straight to the next question (skips reveal/leaderboard).
+          await goToNextQuestionOrFinal(session, questions);
+          break;
 
         case "prevQuestion": {
           const prev = Math.max(0, session.currentIndex - 1);
@@ -129,14 +169,6 @@ export async function control(
         );
       }
       session.questionState = newState;
-
-      // Auto-show the leaderboard the moment a SCORED question is revealed.
-      // Generic on purpose (handler.scored + revealed), not the literal type, so
-      // the core loop stays type-agnostic. Unscored types (Word Flash) never
-      // set `revealed`, so they're unaffected.
-      if (handler.scored && newState.revealed) {
-        session.screen = "leaderboard";
-      }
     }
 
     session.updatedAt = now();

@@ -115,6 +115,21 @@ export function JoinPage() {
     [state, playerId],
   );
 
+  // Fully leave the current game and return to the join form (no reload, so we
+  // never hit the rehydration-on-mount path that could re-attach us).
+  function leaveGame() {
+    clearPlayer();
+    setEnded(false);
+    setPlayerId(null);
+    setWpsUrl(null);
+    setState(null);
+    setAnsweredOrder(null);
+    setResult(null);
+    setName("");
+    setCode("");
+    setError("");
+  }
+
   // ---- Host ended the game ----
   if (ended) {
     return (
@@ -126,7 +141,7 @@ export function JoinPage() {
           <p className="muted">Thanks for playing! The host has ended the session.</p>
           <button
             className="btn btn-primary btn-lg btn-block"
-            onClick={() => window.location.reload()}
+            onClick={leaveGame}
             style={{ marginTop: 12 }}
           >
             Join another game
@@ -216,6 +231,13 @@ export function JoinPage() {
             <p className="muted" style={{ marginTop: 16 }}>
               You finished #{myEntry?.rank ?? "—"} — thanks for playing!
             </p>
+            <button
+              className="btn btn-ghost btn-lg"
+              onClick={leaveGame}
+              style={{ marginTop: 8 }}
+            >
+              Leave game
+            </button>
           </div>
         )}
       </div>

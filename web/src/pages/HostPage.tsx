@@ -167,6 +167,26 @@ export function HostPage() {
   }
 
   // ---- Projector / control view ----
+  // Label for the single "Next ▶" button reflects what the next press will do,
+  // mirroring the backend `advance` sequence:
+  //   scored question (not revealed) -> "Reveal answer"
+  //   scored question (revealed)     -> "Show leaderboard"
+  //   leaderboard                    -> "Next question" / "Finish"
+  //   unscored question              -> "Next question" / "Finish"
+  function advanceLabel(): string {
+    const isLast = state!.currentIndex >= state!.totalQuestions - 1;
+    const q = state!.currentQuestion as { revealed?: boolean } | null;
+    if (state!.screen === "question" && state!.scored) {
+      if (!q?.revealed) return "Reveal answer ▶";
+      return "Show leaderboard ▶";
+    }
+    if (state!.screen === "leaderboard") {
+      return isLast ? "Finish ▶" : "Next question ▶";
+    }
+    // unscored question or other
+    return isLast ? "Finish ▶" : "Next question ▶";
+  }
+
   return (
     <div className="host-screen">
       <GuildBadge fixed />
@@ -246,17 +266,21 @@ export function HostPage() {
         >
           ◀ Prev Q
         </button>
-        <button
-          className="btn btn-secondary btn-lg"
-          onClick={() => control("showLeaderboard")}
-        >
-          Leaderboard
-        </button>
+        {/* Manual jump to leaderboard (independent of the stepped flow). */}
+        {state.screen !== "leaderboard" && (
+          <button
+            className="btn btn-secondary btn-lg"
+            onClick={() => control("showLeaderboard")}
+          >
+            Leaderboard
+          </button>
+        )}
+        {/* Single primary button walks the per-question sequence (advance). */}
         <button
           className="btn btn-primary btn-lg"
-          onClick={() => control("nextQuestion")}
+          onClick={() => control("advance")}
         >
-          {state.currentIndex >= state.totalQuestions - 1 ? "Finish ▶" : "Next Q ▶"}
+          {advanceLabel()}
         </button>
       </footer>
     </div>
