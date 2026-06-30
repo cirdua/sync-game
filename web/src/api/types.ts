@@ -64,3 +64,24 @@ export interface AnswerResponse {
   answerRank: number;
   totalScore: number;
 }
+
+// ---- Authoring (host deck editor) ------------------------------------------
+// Author-facing question shape. Mirrors the backend QuestionInput / QuestionDoc
+// (includes correctAnswer — only ever fetched by the host, never broadcast).
+export interface EditableQuestion {
+  type: string; // "wordflash" | "multiplechoice"
+  payload: unknown;
+  correctAnswer?: number;
+  points?: number;
+  timeLimitMs?: number;
+}
+
+export interface WordFlashEditable extends EditableQuestion {
+  type: "wordflash";
+  payload: { words: string[] };
+}
+export interface MultipleChoiceEditable extends EditableQuestion {
+  type: "multiplechoice";
+  payload: { question: string; options: string[] };
+  correctAnswer: number;
+}

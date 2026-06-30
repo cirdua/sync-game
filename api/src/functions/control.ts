@@ -129,6 +129,14 @@ export async function control(
         );
       }
       session.questionState = newState;
+
+      // Auto-show the leaderboard the moment a SCORED question is revealed.
+      // Generic on purpose (handler.scored + revealed), not the literal type, so
+      // the core loop stays type-agnostic. Unscored types (Word Flash) never
+      // set `revealed`, so they're unaffected.
+      if (handler.scored && newState.revealed) {
+        session.screen = "leaderboard";
+      }
     }
 
     session.updatedAt = now();

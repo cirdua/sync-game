@@ -16,6 +16,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: var(--topbar-h); /* clear the fixed guild top bar */
 }
 .host-header {
   display: flex;
@@ -143,6 +144,7 @@
   gap: 22px;
   background: var(--gray-50);
   padding: 24px;
+  padding-top: calc(var(--topbar-h) + 24px); /* clear the fixed guild top bar */
   text-align: center;
 }
 .qr-title {
@@ -169,13 +171,13 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: var(--topbar-h); /* clear the fixed guild top bar */
 }
 .player-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 14px 18px;
-  padding-top: 56px; /* clear the fixed guild badge */
   background: var(--white);
   border-bottom: 1px solid var(--gray-200);
 }
@@ -236,6 +238,33 @@
 }
 .lb-me {
   outline: 3px solid var(--violet);
+}
+
+/* ---- Deck editor (lobby) ---- */
+.deck-editor {
+  width: 100%;
+  text-align: left;
+}
+.deck-card {
+  padding: 18px;
+}
+.deck-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.deck-card-title {
+  font-weight: 800;
+  color: var(--gray-800);
+}
+.deck-editor .input {
+  font-size: 1rem;
+  padding: 10px 12px;
+}
+.deck-editor .btn {
+  padding: 8px 14px;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 480px) {

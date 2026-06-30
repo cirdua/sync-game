@@ -22,6 +22,9 @@ export function JoinPage() {
   const [answeredOrder, setAnsweredOrder] = useState<number | null>(null);
   const [result, setResult] = useState<AnswerResponse | null>(null);
 
+  // Host ended + purged the session.
+  const [ended, setEnded] = useState(false);
+
   // Attempt rehydration on mount if we have a stored session.
   useEffect(() => {
     const stored = loadPlayer();
@@ -31,11 +34,20 @@ export function JoinPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onMessage = useCallback((msg: { state?: SessionState }) => {
-    if (msg.state) {
-      setState(msg.state);
-    }
-  }, []);
+  const onMessage = useCallback(
+    (msg: { kind?: string; state?: SessionState }) => {
+      if (msg.kind === "ended") {
+        // Host ended the game: clear our stored session and show the end screen.
+        clearPlayer();
+        setEnded(true);
+        return;
+      }
+      if (msg.state) {
+        setState(msg.state);
+      }
+    },
+    [],
+  );
 
   useRealtime({ url: wpsUrl, sessionCode: state?.sessionCode ?? null, onMessage });
 
@@ -102,6 +114,27 @@ export function JoinPage() {
     },
     [state, playerId],
   );
+
+  // ---- Host ended the game ----
+  if (ended) {
+    return (
+      <div className="center-screen">
+        <GuildBadge fixed />
+        <div className="card" style={{ maxWidth: 420, width: "100%", textAlign: "center" }}>
+          <div className="result-emoji">👋</div>
+          <h1 style={{ color: "var(--ing-orange)" }}>Game over</h1>
+          <p className="muted">Thanks for playing! The host has ended the session.</p>
+          <button
+            className="btn btn-primary btn-lg btn-block"
+            onClick={() => window.location.reload()}
+            style={{ marginTop: 12 }}
+          >
+            Join another game
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ---- Not joined yet: show the join form ----
   if (!playerId || !state) {

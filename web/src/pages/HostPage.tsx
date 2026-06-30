@@ -10,6 +10,7 @@ import {
 import { GuildBadge } from "../components/GuildBadge";
 import { Leaderboard } from "../components/Leaderboard";
 import { QRCode } from "../components/QRCode";
+import { DeckEditor } from "../components/DeckEditor";
 import { getRenderer } from "../questiontypes/renderers";
 
 export function HostPage() {
@@ -19,6 +20,8 @@ export function HostPage() {
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  // Lobby deck editor is collapsed by default; "Edit deck" reveals it.
+  const [showEditor, setShowEditor] = useState(false);
 
   // Rehydrate if the host refreshes mid-session.
   useEffect(() => {
@@ -55,7 +58,9 @@ export function HostPage() {
     try {
       const { sessionCode } = await api.createSession();
       await attachToSession(sessionCode);
-      setShowQR(true);
+      // Land on the lobby (with the deck editor). Host opens the QR when ready
+      // for the room to join via "Show QR".
+      setShowQR(false);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -76,10 +81,32 @@ export function HostPage() {
     [code],
   );
 
-  function endSession() {
-    if (!confirm("End this session for everyone?")) return;
-    control("end");
+  function resetToSetup() {
+    // Drop all session state -> renders the "Create session" setup screen again.
+    setCode(null);
+    setState(null);
+    setWpsUrl(null);
+    setShowQR(false);
+    setShowEditor(false);
+    setError("");
     clearHostCode();
+  }
+
+  async function endSession() {
+    if (!confirm("End this session for everyone? This deletes the game data.")) {
+      return;
+    }
+    const c = code;
+    // Return to the setup screen immediately; purge in the background.
+    resetToSetup();
+    if (c) {
+      try {
+        await api.deleteSession(c); // broadcasts "ended" + deletes all data
+      } catch (e) {
+        // Non-fatal for the host UI — they're already back at setup.
+        console.warn("deleteSession failed:", (e as Error).message);
+      }
+    }
   }
 
   // ---- No session yet ----
@@ -119,15 +146,22 @@ export function HostPage() {
           Code: <span>{code}</span>
         </div>
         <p className="muted">{state.playerCount} players joined</p>
-        <button
-          className="btn btn-primary btn-lg"
-          onClick={() => {
-            if (state.status === "lobby") control("start");
-            setShowQR(false);
-          }}
-        >
-          {state.status === "lobby" ? "Start game ▶" : "Back to game"}
-        </button>
+        <div className="row">
+          <button className="btn btn-ghost btn-lg" onClick={() => setShowQR(false)}>
+            {state.status === "lobby" ? "◀ Back to lobby" : "◀ Back to game"}
+          </button>
+          {state.status === "lobby" && (
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => {
+                control("start");
+                setShowQR(false);
+              }}
+            >
+              Start game ▶
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -153,10 +187,34 @@ export function HostPage() {
 
       <main className="host-stage">
         {state.screen === "lobby" && (
-          <div className="center-col">
+          <div className="center-col" style={{ width: "100%", maxWidth: 720 }}>
             <h1>Ready when you are</h1>
-            <p className="muted">{state.playerCount} players in the lobby</p>
-            <button className="btn btn-primary btn-lg" onClick={() => control("start")}>
+            <p className="muted">
+              {state.playerCount} players in the lobby · {state.totalQuestions}{" "}
+              questions
+            </p>
+
+            <div className="row" style={{ flexWrap: "wrap", justifyContent: "center" }}>
+              <button
+                className={`btn ${showEditor ? "btn-secondary" : "btn-ghost"}`}
+                onClick={() => setShowEditor((v) => !v)}
+              >
+                {showEditor ? "Hide deck editor" : "Edit deck"}
+              </button>
+              <button className="btn btn-ghost" onClick={() => setShowQR(true)}>
+                Show QR
+              </button>
+            </div>
+
+            {/* Pre-start deck editor — host can add/remove/reorder/edit.
+                Remounts each time it's opened so it always loads the latest deck. */}
+            {showEditor && <DeckEditor key={`editor-${code}`} code={code} />}
+
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => control("start")}
+              style={{ marginTop: 8 }}
+            >
               Start game ▶
             </button>
           </div>

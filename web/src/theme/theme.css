@@ -28,6 +28,8 @@
   --shadow-lg: 0 12px 48px rgba(24, 28, 33, 0.18);
 
   --font: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+
+  --topbar-h: 52px;
 }
 
 * {
@@ -135,6 +137,31 @@ button {
   border-radius: 50%;
   background: var(--ing-orange);
 }
+.guild-badge .guild-logo {
+  display: block;
+  object-fit: contain;
+}
+
+/* Fixed full-width top bar holding the badge — content reserves --topbar-h. */
+.guild-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--topbar-h);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--gray-200);
+}
+.guild-topbar .guild-badge {
+  box-shadow: none;
+  padding: 6px 12px;
+  background: transparent;
+}
 
 /* ---- Layout helpers ---- */
 .center-screen {
@@ -144,6 +171,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  padding-top: calc(var(--topbar-h) + 20px);
   gap: 20px;
 }
 .stack {
