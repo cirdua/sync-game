@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and adjust as needed (terraform.tfvars is gitignored).
+# All values are optional — sensible defaults are set in variables.tf.
+
+# Pin a subscription if your az login has more than one:
+# subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# project_name = "guildlive"      # 3-12 lowercase alphanumeric; used in resource names
+# location     = "westeurope"     # main region
+# swa_location = "westeurope"     # must be an SWA-supported region

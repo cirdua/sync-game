@@ -1,0 +1,24 @@
+{
+  "name": "guild-live-api",
+  "version": "1.0.0",
+  "description": "Guild Live backend — Azure Functions (Node + TypeScript, v4 programming model)",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run clean && npm run build",
+    "start": "func start",
+    "test": "echo \"no unit tests yet\" && exit 0"
+  },
+  "dependencies": {
+    "@azure/cosmos": "^4.1.1",
+    "@azure/functions": "^4.5.1",
+    "@azure/web-pubsub": "^1.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.5.0"
+  }
+}

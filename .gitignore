@@ -1,0 +1,32 @@
+# ---- Terraform ----
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+.terraform.lock.hcl
+
+# ---- Node / Functions ----
+node_modules/
+dist/
+.azure/
+local.settings.json
+*.log
+
+# ---- Frontend ----
+web/dist/
+web/.env
+web/.env.local
+
+# ---- Misc ----
+.DS_Store
+.vscode/
+*.tmp

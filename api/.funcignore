@@ -1,0 +1,8 @@
+*.js.map
+src
+tsconfig.json
+local.settings.json
+local.settings.json.example
+.vscode
+__tests__
+test*.http

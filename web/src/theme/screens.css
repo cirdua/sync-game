@@ -1,0 +1,245 @@
+/* =============================================================================
+   Screen-specific styles. Host = big, projector-friendly. Player = mobile-first.
+   ============================================================================= */
+
+.center-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+
+/* ---- Host layout (projector) ---- */
+.host-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.host-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--gray-200);
+  background: var(--white);
+}
+.host-code {
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--ing-orange);
+  letter-spacing: 0.1em;
+}
+.host-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.host-stage h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+.host-qmeta {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+}
+.host-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 20px;
+  border-top: 1px solid var(--gray-200);
+  background: var(--white);
+}
+
+/* ---- Word Flash ---- */
+.wf-host {
+  text-align: center;
+}
+.wf-word {
+  font-size: clamp(3rem, 12vw, 9rem);
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.05;
+}
+.wf-progress {
+  font-size: 1.4rem;
+  margin-top: 12px;
+}
+.wf-word-sm {
+  font-size: clamp(2rem, 9vw, 3.5rem);
+  font-weight: 800;
+  color: var(--ing-orange);
+  text-align: center;
+}
+
+/* ---- Multiple Choice (host) ---- */
+.mc-question {
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  text-align: center;
+  margin-bottom: 28px;
+}
+.mc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.mc-option {
+  color: var(--white);
+  font-size: clamp(1.2rem, 2.6vw, 2rem);
+  font-weight: 700;
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  transition: opacity 0.2s ease;
+}
+.mc-check {
+  font-weight: 900;
+}
+
+/* ---- Multiple Choice (player) ---- */
+.mc-player-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+.mc-player-option {
+  border: none;
+  color: var(--white);
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding: 32px 12px;
+  border-radius: var(--radius-lg);
+  min-height: 96px;
+}
+.mc-player-option:active {
+  transform: scale(0.97);
+}
+.mc-answered {
+  text-align: center;
+}
+.result-emoji {
+  font-size: 4rem;
+}
+.points {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ing-orange);
+}
+
+/* ---- QR full-screen ---- */
+.qr-fullscreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: var(--gray-50);
+  padding: 24px;
+  text-align: center;
+}
+.qr-title {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
+.qr-code-wrap {
+  background: var(--white);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  line-height: 0;
+}
+.qr-code-big {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 800;
+}
+.qr-code-big span {
+  color: var(--ing-orange);
+  letter-spacing: 0.15em;
+}
+
+/* ---- Player layout (mobile-first) ---- */
+.player-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.player-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  padding-top: 56px; /* clear the fixed guild badge */
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.player-score {
+  font-weight: 800;
+  color: var(--ing-orange);
+}
+.player-body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ---- Leaderboard ---- */
+.leaderboard {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.lb-title {
+  text-align: center;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+}
+.lb-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lb-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  box-shadow: var(--shadow);
+  font-size: 1.15rem;
+}
+.leaderboard-final .lb-row {
+  font-size: 1.4rem;
+  padding: 18px 22px;
+}
+.lb-rank {
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+.lb-name {
+  font-weight: 600;
+}
+.lb-score {
+  font-weight: 800;
+  color: var(--ing-orange);
+}
+.lb-me {
+  outline: 3px solid var(--violet);
+}
+
+@media (max-width: 480px) {
+  .mc-grid {
+    grid-template-columns: 1fr;
+  }
+}

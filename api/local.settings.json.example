@@ -1,0 +1,17 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+
+    "COSMOS_CONNECTION_STRING": "AccountEndpoint=https://...;AccountKey=...;",
+    "COSMOS_DATABASE_NAME": "guildlive",
+
+    "WEBPUBSUB_CONNECTION_STRING": "Endpoint=https://...;AccessKey=...;Version=1.0;",
+    "WEBPUBSUB_HUB_NAME": "guildlive"
+  },
+  "Host": {
+    "CORS": "*",
+    "CORSCredentials": false
+  }
+}
