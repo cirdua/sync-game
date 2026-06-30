@@ -5,7 +5,7 @@ import {
   normalizeCode,
   notFound,
   ok,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import { getSession } from "../shared/state";
 import { getGroupAccessToken } from "../shared/webpubsub";
@@ -36,7 +36,7 @@ export async function negotiate(
     return ok({ url, userId });
   } catch (err) {
     context.error("negotiate failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

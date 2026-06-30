@@ -1,9 +1,11 @@
-# Copy to terraform.tfvars and adjust as needed (terraform.tfvars is gitignored).
-# All values are optional — sensible defaults are set in variables.tf.
+# Copy to terraform.tfvars and adjust (terraform.tfvars is gitignored).
+
+# REQUIRED — the existing resource group to deploy into (it must already exist):
+resource_group_name = "my-existing-rg"
 
 # Pin a subscription if your az login has more than one:
 # subscription_id = "00000000-0000-0000-0000-000000000000"
 
 # project_name = "guildlive"      # 3-12 lowercase alphanumeric; used in resource names
-# location     = "westeurope"     # main region
 # swa_location = "westeurope"     # must be an SWA-supported region
+#                                 # (other resources inherit the RG's region)

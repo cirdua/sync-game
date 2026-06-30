@@ -9,7 +9,7 @@ import {
   now,
   ok,
   readJson,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import {
   buildSessionState,
@@ -141,7 +141,7 @@ export async function control(
     return ok({ state });
   } catch (err) {
     context.error("control failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

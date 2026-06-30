@@ -4,7 +4,7 @@ import {
   normalizeCode,
   notFound,
   ok,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import { buildSessionState, getSession } from "../shared/state";
 
@@ -28,7 +28,7 @@ export async function getStateFn(
     return ok({ state });
   } catch (err) {
     context.error("getState failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

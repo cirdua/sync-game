@@ -8,7 +8,7 @@ import {
   now,
   ok,
   readJson,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import { getSession } from "../shared/state";
 
@@ -117,7 +117,7 @@ export async function createSession(
     return ok({ sessionCode, totalQuestions: inputs.length });
   } catch (err) {
     context.error("createSession failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

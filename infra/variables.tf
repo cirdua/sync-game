@@ -4,6 +4,11 @@ variable "subscription_id" {
   default     = ""
 }
 
+variable "resource_group_name" {
+  description = "Name of the EXISTING resource group to deploy into. It must already exist; Terraform consumes it as a data source and does NOT create or destroy it."
+  type        = string
+}
+
 variable "project_name" {
   description = "Short project slug used to build resource names. Lowercase letters/numbers only."
   type        = string
@@ -15,17 +20,16 @@ variable "project_name" {
   }
 }
 
-variable "location" {
-  description = "Azure region for all resources. Pick a region where Web PubSub + SWA + Cosmos serverless are all available."
-  type        = string
-  default     = "westeurope"
-}
+# NOTE: Cosmos, Web PubSub, Functions, and Storage all inherit the EXISTING
+# resource group's location (data.azurerm_resource_group.rg.location) — there is
+# no separate `location` variable, so they always land in the RG's region.
 
 variable "swa_location" {
   description = <<-EOT
-    Region for Static Web Apps. SWA is only available in a subset of regions.
-    Valid (as of writing): westus2, centralus, eastus2, westeurope, eastasia.
-    Kept separate from `location` because the main region may not host SWA.
+    Region for Static Web Apps. SWA is only available in a subset of regions, so
+    it is set explicitly rather than inheriting the RG location (which may not
+    host SWA). Valid (as of writing): westus2, centralus, eastus2, westeurope,
+    eastasia. Set this in tfvars to the supported region nearest your RG.
   EOT
   type        = string
   default     = "westeurope"

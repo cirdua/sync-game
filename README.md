@@ -27,7 +27,9 @@ costs one day (~$1.61). Everything else stays on free/serverless tiers.
 > ```bash
 > cd infra && terraform destroy
 > ```
-> This deletes the whole resource group and stops **all** charges.
+> This destroys the resources Terraform created (Web PubSub, Cosmos, Functions,
+> Storage, SWA) and stops **all** charges. Your existing resource group is left
+> in place.
 
 ---
 
@@ -74,11 +76,14 @@ Install on the machine you deploy from:
 
 ### 1. Provision infrastructure
 
+Deploys into an **existing** resource group you provide via `resource_group_name`.
+
 ```bash
 az login
 cd infra
+cp terraform.tfvars.example terraform.tfvars   # set resource_group_name (REQUIRED)
 terraform init
-terraform apply        # creates the resource group + all resources
+terraform apply        # creates all resources INSIDE your existing RG
 ```
 
 Verify outputs are populated:
@@ -113,7 +118,7 @@ The script prints the live URLs at the end:
 
 > **CORS:** Terraform sets the Function App CORS to `*` (the app is token-based and
 > sends no credentials, so this is safe). If `func ... publish` ever resets it,
-> re-apply with `az functionapp cors add -g rg-guildlive -n <func-name> --allowed-origins '*'`.
+> re-apply with `az functionapp cors add -g <your-rg> -n <func-name> --allowed-origins '*'`.
 
 ---
 
@@ -165,7 +170,8 @@ per-milestone verification checklists.
 cd infra && terraform destroy
 ```
 
-Confirm in the Azure Portal that the `rg-guildlive` resource group is gone.
+Confirm in the Azure Portal that the Guild Live resources are gone from your
+resource group (the RG itself is intentionally left in place).
 
 ---
 
@@ -174,7 +180,8 @@ Confirm in the Azure Portal that the `rg-guildlive` resource group is gone.
 - **No authentication** by design (single trusted presenter, one room). Anyone with
   the session code can issue host controls — acceptable for a live event, not for
   public/multi-tenant use.
-- Single environment, single resource group, **local Terraform state** (don't commit
+- Single environment, deploys into a **pre-existing resource group** (supplied via
+  `resource_group_name`; Terraform won't create or destroy the RG), **local Terraform state** (don't commit
   `terraform.tfstate` — it holds secrets; see [.gitignore](.gitignore)).
 - Sized for ~200 concurrent players on 1 Web PubSub unit (10k concurrent connections
   / 1M messages per unit per day — comfortably within budget for a 1-hour event).

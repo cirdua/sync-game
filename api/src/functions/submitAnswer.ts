@@ -9,7 +9,7 @@ import {
   now,
   ok,
   readJson,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import {
   buildSessionState,
@@ -155,7 +155,7 @@ export async function submitAnswer(
     });
   } catch (err) {
     context.error("submitAnswer failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

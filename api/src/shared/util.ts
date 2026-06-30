@@ -51,6 +51,16 @@ export function serverError(message = "Internal error"): HttpResponseInit {
   return json(500, { error: message });
 }
 
+/**
+ * Build a 500 that includes the real error text. Safe for this no-auth internal
+ * event and invaluable for debugging a deployed instance. Pass the caught error.
+ */
+export function serverErrorFrom(err: unknown): HttpResponseInit {
+  const detail =
+    err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+  return json(500, { error: "Internal error", detail });
+}
+
 /** Safe JSON body parse for HttpRequest. Returns {} on empty/invalid. */
 export async function readJson<T = any>(req: {
   text: () => Promise<string>;

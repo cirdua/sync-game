@@ -22,9 +22,13 @@ Containers (`sessions`, `questions`, `players`, `answers`) are all partitioned b
 
 ## Apply
 
+> **Resource group:** this config deploys into an **existing** RG that you supply
+> via `resource_group_name`. Terraform consumes it as a data source and never
+> creates or destroys it.
+
 ```bash
 cd infra
-cp terraform.tfvars.example terraform.tfvars   # optional — defaults work
+cp terraform.tfvars.example terraform.tfvars   # then set resource_group_name (REQUIRED)
 terraform init
 terraform plan
 terraform apply
@@ -39,7 +43,7 @@ terraform output -raw webpubsub_connection_string
 terraform output -raw static_web_app_api_key
 ```
 
-All resources should show in the Azure Portal under `rg-guildlive`. Confirm:
+All resources should show in the Azure Portal under your resource group. Confirm:
 - Cosmos account → **Capacity mode = Serverless**
 - Static Web App → **Plan = Free**
 - Web PubSub → **Pricing tier = Standard, Unit count = 1**
@@ -56,11 +60,14 @@ All resources should show in the Azure Portal under `rg-guildlive`. Confirm:
 
 ## ⚠️ Teardown — DO THIS AFTER THE EVENT
 
-Web PubSub bills **per unit per day** with no hourly proration. Destroy everything:
+Web PubSub bills **per unit per day** with no hourly proration. Destroy the
+resources Terraform created:
 
 ```bash
 cd infra
 terraform destroy
 ```
 
-This removes the entire resource group and stops all billing.
+This removes Cosmos, Web PubSub, Functions, Storage, and the Static Web App.
+The **resource group itself is left intact** (it pre-existed and is consumed as a
+data source). The Web PubSub charge stops as soon as its resource is gone.

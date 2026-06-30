@@ -4,7 +4,7 @@ import {
   normalizeCode,
   notFound,
   ok,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import {
   computeLeaderboard,
@@ -34,7 +34,7 @@ export async function leaderboardFn(
     return ok({ sessionCode: code, leaderboard });
   } catch (err) {
     context.error("leaderboard failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

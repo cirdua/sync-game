@@ -9,7 +9,7 @@ import {
   now,
   ok,
   readJson,
-  serverError,
+  serverErrorFrom,
 } from "../shared/util";
 import { buildSessionState, getSession } from "../shared/state";
 import {
@@ -94,7 +94,7 @@ export async function join(
     });
   } catch (err) {
     context.error("join failed", err);
-    return serverError();
+    return serverErrorFrom(err);
   }
 }
 

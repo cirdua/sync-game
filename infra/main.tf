@@ -27,12 +27,12 @@ locals {
 }
 
 # -----------------------------------------------------------------------------
-# Resource group — everything lives here so teardown is one command.
+# Resource group — EXISTING, provided by the operator. Consumed as a data source
+# so Terraform never creates or destroys it. `terraform destroy` removes only the
+# resources below (Cosmos, Web PubSub, Functions, Storage, SWA), not the RG.
 # -----------------------------------------------------------------------------
-resource "azurerm_resource_group" "rg" {
-  name     = "rg-${var.project_name}"
-  location = var.location
-  tags     = var.tags
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group_name
 }
 
 # -----------------------------------------------------------------------------
@@ -41,8 +41,8 @@ resource "azurerm_resource_group" "rg" {
 # -----------------------------------------------------------------------------
 resource "azurerm_cosmosdb_account" "cosmos" {
   name                = "${var.project_name}-cosmos-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
   offer_type          = "Standard"
   kind                = "GlobalDocumentDB" # NoSQL / Core (SQL) API
 
@@ -57,7 +57,7 @@ resource "azurerm_cosmosdb_account" "cosmos" {
   }
 
   geo_location {
-    location          = azurerm_resource_group.rg.location
+    location          = data.azurerm_resource_group.rg.location
     failover_priority = 0
   }
 
@@ -66,7 +66,7 @@ resource "azurerm_cosmosdb_account" "cosmos" {
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "guildlive"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   account_name        = azurerm_cosmosdb_account.cosmos.name
   # No throughput set => inherits serverless billing from the account.
 }
@@ -74,7 +74,7 @@ resource "azurerm_cosmosdb_sql_database" "db" {
 # Containers — all partitioned by /sessionCode so a live game hits one partition.
 resource "azurerm_cosmosdb_sql_container" "sessions" {
   name                  = "sessions"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = data.azurerm_resource_group.rg.name
   account_name          = azurerm_cosmosdb_account.cosmos.name
   database_name         = azurerm_cosmosdb_sql_database.db.name
   partition_key_paths   = ["/sessionCode"]
@@ -83,7 +83,7 @@ resource "azurerm_cosmosdb_sql_container" "sessions" {
 
 resource "azurerm_cosmosdb_sql_container" "questions" {
   name                  = "questions"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = data.azurerm_resource_group.rg.name
   account_name          = azurerm_cosmosdb_account.cosmos.name
   database_name         = azurerm_cosmosdb_sql_database.db.name
   partition_key_paths   = ["/sessionCode"]
@@ -92,7 +92,7 @@ resource "azurerm_cosmosdb_sql_container" "questions" {
 
 resource "azurerm_cosmosdb_sql_container" "players" {
   name                  = "players"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = data.azurerm_resource_group.rg.name
   account_name          = azurerm_cosmosdb_account.cosmos.name
   database_name         = azurerm_cosmosdb_sql_database.db.name
   partition_key_paths   = ["/sessionCode"]
@@ -101,7 +101,7 @@ resource "azurerm_cosmosdb_sql_container" "players" {
 
 resource "azurerm_cosmosdb_sql_container" "answers" {
   name                  = "answers"
-  resource_group_name   = azurerm_resource_group.rg.name
+  resource_group_name   = data.azurerm_resource_group.rg.name
   account_name          = azurerm_cosmosdb_account.cosmos.name
   database_name         = azurerm_cosmosdb_sql_database.db.name
   partition_key_paths   = ["/sessionCode"]
@@ -114,8 +114,8 @@ resource "azurerm_cosmosdb_sql_container" "answers" {
 # -----------------------------------------------------------------------------
 resource "azurerm_web_pubsub" "wps" {
   name                = "${var.project_name}-wps-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
 
   sku      = "Standard_S1"
   capacity = 1
@@ -139,8 +139,8 @@ resource "azurerm_web_pubsub_hub" "hub" {
 # -----------------------------------------------------------------------------
 resource "azurerm_storage_account" "func_storage" {
   name                     = local.storage_name
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = data.azurerm_resource_group.rg.name
+  location                 = data.azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
   min_tls_version          = "TLS1_2"
@@ -155,8 +155,8 @@ resource "azurerm_storage_account" "func_storage" {
 # -----------------------------------------------------------------------------
 resource "azurerm_service_plan" "plan" {
   name                = "${var.project_name}-plan"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
   os_type             = "Linux"
   sku_name            = "Y1" # Y1 = Consumption
   tags                = var.tags
@@ -164,8 +164,8 @@ resource "azurerm_service_plan" "plan" {
 
 resource "azurerm_linux_function_app" "func" {
   name                = "${var.project_name}-func-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
   service_plan_id     = azurerm_service_plan.plan.id
 
   storage_account_name       = azurerm_storage_account.func_storage.name

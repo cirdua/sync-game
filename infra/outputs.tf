@@ -6,11 +6,11 @@
 
 output "resource_group_name" {
   description = "Resource group holding all Guild Live resources. `terraform destroy` removes everything here."
-  value       = azurerm_resource_group.rg.name
+  value       = data.azurerm_resource_group.rg.name
 }
 
 output "location" {
-  value = azurerm_resource_group.rg.location
+  value = data.azurerm_resource_group.rg.location
 }
 
 # ---- Function App -----------------------------------------------------------

@@ -9,7 +9,7 @@
 # -----------------------------------------------------------------------------
 resource "azurerm_static_web_app" "swa" {
   name                = "${var.project_name}-swa-${local.suffix}"
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = data.azurerm_resource_group.rg.name
   location            = var.swa_location
 
   sku_tier = "Free"
