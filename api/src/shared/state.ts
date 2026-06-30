@@ -31,8 +31,10 @@ export async function getQuestions(
   const { resources } = await containers
     .questions()
     .items.query<QuestionDoc>({
+      // `order` is a RESERVED keyword in Cosmos SQL — must use bracket notation
+      // c["order"], otherwise the query fails with "syntax error near order".
       query:
-        "SELECT * FROM c WHERE c.sessionCode = @code ORDER BY c.order ASC",
+        'SELECT * FROM c WHERE c.sessionCode = @code ORDER BY c["order"] ASC',
       parameters: [{ name: "@code", value: sessionCode }],
     })
     .fetchAll();
